@@ -1,89 +1,45 @@
 'use strict';
 const express = require('express');
-const lodash = require('lodash');
 const router = express.Router();
+const MovieController = require('../controller/movie');
 
-var Movie = {};
-
-/* GET users listing. */
 router
-	.post('/', (req, res, next) => {
+	.post('/', function(req, res, next){
 		console.log("post: ", req.body);
+		let movieCtrlr = new MovieController();
+		let _res = movieCtrlr.insert( req.body );
 
-		if (!req.body) {
-			res.status(403).json({
-				error: true,
-				messaje: 'Body empty'
-			});
-		}
-
-		let _movie = req.body;
-		_movie._id = Date.now();
-
-		Movie[_movie._id] = _movie;
-
-		res.status(201).json({
-			movie: Movie[_movie._id]
-		});
-
+		return res
+			.status( _res.status )
+			.json( _res.response );
 	})
-	.get('/',(req,res,next)=>{
+	.get('/',function(req,res,next){
 		console.log("GET :",req.body);
+		let movieCtrlr = new MovieController();
+		let _res = movieCtrlr.get();
 
-		res
-			.status(200)
-			.json({movies:lodash.values(Movie)});
+		return res.status( _res.status ).json( _res.response );
 	})
 	.get('/:id',function(req,res,next){
 		console.log('GET/:id', req.params.id);
+		let movieCtrlr = new MovieController();
+		let _res = movieCtrlr.get( req.params.id );
 
-		if( !req.params.id ){
-			return res
-				.status(403)
-				.json({error:true,messaje:"Params empty"});
-		}
-
-		let movie = Movie[ req.params.id ];
-		return res
-			.status(200)
-			.json({movie:movie});
+		return res.status( _res.status ).json( _res.response );
 	})
 	.put('/:id',function(req,res,next){
 		console.log('PUT/:id', req.params.id);
-		
-		if( !req.params.id && !req.body ){
-			return res
-				.status(403)
-				.json({error:true,messaje:"Params empty"});
-		}
+		let movieCtrlr = new MovieController();
+		let _res = movieCtrlr.update( req.params.id , req.body );
 
-		let new_movie = req.body;
-		new_movie._id = parseInt(req.params.id,10);
-
-
-		Movie[ new_movie._id ] = new_movie;
-		new_movie = Movie[ req.params.id ];
-
-		return res
-			.status(200)
-			.json({movie:req.body});
-
+		return res.status( _res.status ).json( _res.response );
 	})
 	.delete('/:id',function(req,res,next){
 		console.log('Delete/:id', req.params.id);
+		let movieCtrlr = new MovieController();
+		let _res = movieCtrlr.delete( req.params.id );
 
-		if( !req.params.id && !req.body ){
-			return res
-				.status(403)
-				.json({error:true,messaje:"Params empty"});
-		}
-
-		let id = parseInt( req.params.id , 10 );
-		delete Movie[ id ];
-
-		return res
-			.status(400)
-			.json({});
+		return res.status( _res.status ).json( _res.response );
 	});
 
 module.exports = router;
